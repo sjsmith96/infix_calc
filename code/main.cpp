@@ -17,6 +17,14 @@
 
 #define MAX_STACK 256
 
+struct Stack
+{
+    char *data;
+    char *stack_top;
+    size_t element_size;
+};
+
+
 struct OperatorStack
 {
     Token stack[MAX_STACK];
@@ -143,20 +151,35 @@ int evaluate(char *string) {
             {
                 double a = pop_val(&value_stack);
                 double b = pop_val(&value_stack);
-                double result = a + b;
+                double result = b + a;
                 push_val(&value_stack, result);
                 break;
             }
             case TOKEN_MINUS:
             {
+                
+                double a = pop_val(&value_stack);
+                double b = pop_val(&value_stack);
+                double result = b - a;
+                push_val(&value_stack, result);
                 break;
             }
             case TOKEN_STAR:
             {
+                
+                double a = pop_val(&value_stack);
+                double b = pop_val(&value_stack);
+                double result = b * a;
+                push_val(&value_stack, result);
                 break;
             }
             case TOKEN_SLASH:
             {
+                
+                double a = pop_val(&value_stack);
+                double b = pop_val(&value_stack);
+                double result = b / a;
+                push_val(&value_stack, result);
                 break;
             }
         }
@@ -167,6 +190,7 @@ int evaluate(char *string) {
 }
 
 int main(int argc, char **argv) {
+    
     char *expression = NULL;
     if(argc > 1)
     {
