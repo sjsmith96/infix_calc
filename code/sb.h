@@ -14,7 +14,6 @@ typedef struct {
 #define buf_cap_raw(b) buf_header(b)->capacity
 #define buf_count(b) ((b) == NULL ? 0 : buf_count_raw(b))
 #define buf_cap(b) ((b) == NULL ? 0 : buf_cap_raw(b))
-#define buf_last(b) ((b)[buf_count(b)])
 
 #define buf__add(b, n) (buf_count_raw(b) += (n), &(b)[buf_count_raw(b) - (n)])
 #define buf_add(b, n) \
@@ -27,6 +26,8 @@ typedef struct {
 #define buf_grow(b, n) grow(buf_cap(b), sizeof(*(b)), (n), (void **)&(b))
 #define buf_free(b) ((b) ? free(buf_header(b)), 0 : 0)
 
+#define buf_last(b) ((b)[buf_count(b) - 1])
+#define buf_pop(b)  ((b)[--buf_count_raw(b)])
 void grow(int capacity, size_t elementSize, int sizeToGrow, void **data) {
 	int newCapacity = capacity ? (capacity * 2) + sizeToGrow : 8 + sizeToGrow;
 

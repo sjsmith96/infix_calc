@@ -15,29 +15,6 @@
   Stack implementation
  */
 
-#define MAX_STACK 256
-
-struct Stack
-{
-    char *data;
-    char *stack_top;
-    size_t element_size;
-};
-
-
-struct OperatorStack
-{
-    Token stack[MAX_STACK];
-    Token *stack_top;
-};
-
-
-struct ValueStack
-{
-    double stack[MAX_STACK];
-    double *stack_top;
-};
-
 
 inline void enqueue(Token **queue, Token value)
 {
@@ -52,48 +29,12 @@ inline Token dequeue(Token **queue)
     return value;
 }
 
-inline Token pop_op(OperatorStack *stack)
-{
-    stack->stack_top--;
-    return *stack->stack_top;
-}
-
-inline void push_op(OperatorStack *stack, Token value)
-{
-    *stack->stack_top = value;
-    stack->stack_top++;
-}
-
-
-inline double pop_val(ValueStack *stack)
-{
-    stack->stack_top--;
-    return *stack->stack_top;
-}
-
-inline void push_val(ValueStack *stack, double value)
-{
-    *stack->stack_top = value;
-    stack->stack_top++;
-}
-
-
-void init_operator_stack(OperatorStack *stack)
-{
-    stack->stack_top = stack->stack;
-}
-
-void init_value_stack(ValueStack *stack)
-{
-    stack->stack_top = stack->stack;
-}
 
 
 Token *shunting_yard(Token *tokens)
 {    
     Token *output_queue = NULL;
-    OperatorStack operator_stack = {};
-    init_operator_stack(&operator_stack);
+    Token *operator_stack = NULL;
     
     for(int i = 0; i < buf_count(tokens); i++)
     {
@@ -110,21 +51,24 @@ Token *shunting_yard(Token *tokens)
             case TOKEN_STAR:
             case TOKEN_SLASH:
             {
-                Token *stack_top = operator_stack.stack_top;
-                while(stack_top &&
-                      OPERATOR(stack_top->type) &&
-                      stack_top->type > current.type)
+                if(operator_stack != NULL)
                 {
-                    enqueue(&output_queue, pop_op(&operator_stack));
+                    Token *stack_top = &buf_last(operator_stack);
+                    while(stack_top != NULL &&
+                          OPERATOR(stack_top->type) &&
+                          stack_top->type > current.type)
+                    {
+                        enqueue(&output_queue, buf_pop(operator_stack));
+                    }
                 }
-                push_op(&operator_stack, current);
+                buf_push(operator_stack, current);
                 break;
             }
         }
     }
-    while(operator_stack.stack_top > operator_stack.stack)
+    while(buf_count(operator_stack) > 0)
     {
-        enqueue(&output_queue, pop_op(&operator_stack));
+        enqueue(&output_queue, buf_pop(operator_stack));
     }
 
     return output_queue;
@@ -135,8 +79,7 @@ int evaluate(char *string) {
     Token *tokens = tokenize_string(string);
     tokens = shunting_yard(tokens);
 
-    ValueStack value_stack = {};
-    init_value_stack(&value_stack);
+    double *value_stack = NULL;
     for(int i = 0; i < buf_count(tokens); i++)
     {
         Token current = tokens[i];
@@ -144,49 +87,50 @@ int evaluate(char *string) {
         {
             case TOKEN_NUMBER:
             {
-                push_val(&value_stack, current.value);
+                buf_push(value_stack, current.value);
                 break;
             }
             case TOKEN_PLUS:
             {
-                double a = pop_val(&value_stack);
-                double b = pop_val(&value_stack);
+                double a = buf_pop(value_stack);
+                double b = buf_pop(value_stack);
                 double result = b + a;
-                push_val(&value_stack, result);
+                buf_push(value_stack, result);
                 break;
             }
             case TOKEN_MINUS:
             {
-                
-                double a = pop_val(&value_stack);
-                double b = pop_val(&value_stack);
+             
+                double a = buf_pop(value_stack);
+                double b = buf_pop(value_stack);
                 double result = b - a;
-                push_val(&value_stack, result);
+                buf_push(value_stack, result);
                 break;
             }
             case TOKEN_STAR:
             {
-                
-                double a = pop_val(&value_stack);
-                double b = pop_val(&value_stack);
+             
+                double a = buf_pop(value_stack);
+                double b = buf_pop(value_stack);
                 double result = b * a;
-                push_val(&value_stack, result);
+                buf_push(value_stack, result);
                 break;
             }
             case TOKEN_SLASH:
             {
-                
-                double a = pop_val(&value_stack);
-                double b = pop_val(&value_stack);
-                double result = b / a;
-                push_val(&value_stack, result);
+             
+                double a = buf_pop(value_stack);
+                double b = buf_pop(value_stack);
+                double result = b * a;
+                buf_push(value_stack, result);
                 break;
             }
         }
         
     }
 
-	return (int) pop_val(&value_stack);
+    buf_free(tokens);
+	return (int) buf_pop(value_stack);
 }
 
 int main(int argc, char **argv) {
