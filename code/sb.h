@@ -14,6 +14,7 @@ typedef struct {
 #define buf_cap_raw(b) buf_header(b)->capacity
 #define buf_count(b) ((b) == NULL ? 0 : buf_count_raw(b))
 #define buf_cap(b) ((b) == NULL ? 0 : buf_cap_raw(b))
+#define buf_last(b) ((b)[buf_count(b)])
 
 #define buf__add(b, n) (buf_count_raw(b) += (n), &(b)[buf_count_raw(b) - (n)])
 #define buf_add(b, n) \
