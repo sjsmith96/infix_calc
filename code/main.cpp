@@ -1,5 +1,5 @@
 #include <stdio.h>
-
+#include <assert.h>
 #include "tokenizer.cpp"
 
 
@@ -12,9 +12,7 @@
         - malloc
         - free
 
-  Stack implementation
  */
-
 
 inline void enqueue(Token **queue, Token value)
 {
@@ -28,8 +26,6 @@ inline Token dequeue(Token **queue)
     buf_count_raw(queue)--;
     return value;
 }
-
-
 
 Token *shunting_yard(Token *tokens)
 {    
@@ -54,15 +50,31 @@ Token *shunting_yard(Token *tokens)
                 if(operator_stack != NULL)
                 {
                     Token *stack_top = &buf_last(operator_stack);
-                    while(stack_top != NULL &&
-                          OPERATOR(stack_top->type) &&
-                          stack_top->type > current.type)
+                    while(OPERATOR(stack_top->type) &&
+                          stack_top->type != TOKEN_LEFT_PAREN &&
+                          stack_top->type >= current.type)
                     {
                         enqueue(&output_queue, buf_pop(operator_stack));
+                        stack_top = &buf_last(operator_stack);
                     }
                 }
                 buf_push(operator_stack, current);
                 break;
+            }
+            case TOKEN_LEFT_PAREN:
+            {
+                buf_push(operator_stack, current);
+                break;
+            }
+            case TOKEN_RIGHT_PAREN:
+            {
+                while(buf_last(operator_stack).type != TOKEN_LEFT_PAREN)
+                {
+                    assert(buf_count(operator_stack) > 0);
+                    enqueue(&output_queue, buf_pop(operator_stack));
+                }
+                assert(buf_last(operator_stack).type == TOKEN_LEFT_PAREN);
+                buf_pop(operator_stack);
             }
         }
     }

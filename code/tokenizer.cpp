@@ -3,8 +3,27 @@
 Token get_next_token(Tokenizer *tokenizer)
 {
     Token result = {};
-
-    if(*tokenizer->current == '+')
+    
+    if(is_num(*tokenizer->current))
+    {
+        while(is_num(*tokenizer->current))
+        {
+            tokenizer->current++;
+        }
+        result.type = TOKEN_NUMBER;
+        result.value = strtod(tokenizer->start, &tokenizer->current);
+    }
+    else if(*tokenizer->current == '(')
+    {
+        result.type = TOKEN_LEFT_PAREN;
+        tokenizer->current++;
+    }
+    else if(*tokenizer->current == ')')
+    {
+        result.type = TOKEN_RIGHT_PAREN;
+        tokenizer->current++;
+    }
+    else if(*tokenizer->current == '+')
     {
         result.type = TOKEN_PLUS;
         tokenizer->current++;
@@ -24,15 +43,7 @@ Token get_next_token(Tokenizer *tokenizer)
         result.type = TOKEN_SLASH;
         tokenizer->current++;
     }
-    else if(is_num(*tokenizer->current))
-    {
-        while(is_num(*tokenizer->current))
-        {
-            tokenizer->current++;
-        }
-        result.type = TOKEN_NUMBER;
-        result.value = strtod(tokenizer->start, &tokenizer->current);
-    }
+    
 
     size_t len = tokenizer->current - tokenizer->start;
     char *lexeme = (char *) malloc(len + 1);

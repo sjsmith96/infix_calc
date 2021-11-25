@@ -17,6 +17,8 @@ enum TokenType
     TOKEN_MINUS,
     TOKEN_STAR,
     TOKEN_SLASH,
+    TOKEN_LEFT_PAREN,
+    TOKEN_RIGHT_PAREN
 };
 
 #define OPERATOR(t)     (((t) >= TOKEN_PLUS && (t) <= TOKEN_SLASH) ? 1 : 0) 
