@@ -7,9 +7,6 @@
 
 typedef int bool32;
 
-
-
-
 enum TokenType
 {
     TOKEN_NUMBER,
@@ -36,7 +33,6 @@ struct Tokenizer
     char *current;
     char *start;
 };
-
 
 inline bool32 is_num(char c)
 {

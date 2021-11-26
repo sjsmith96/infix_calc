@@ -43,7 +43,6 @@ Token get_next_token(Tokenizer *tokenizer)
         result.type = TOKEN_SLASH;
         tokenizer->current++;
     }
-    
 
     size_t len = tokenizer->current - tokenizer->start;
     char *lexeme = (char *) malloc(len + 1);

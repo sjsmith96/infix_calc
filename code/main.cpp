@@ -19,14 +19,6 @@ inline void enqueue(Token **queue, Token value)
     buf_push(*queue, value);
 }
 
-inline Token dequeue(Token **queue)
-{
-    Token value = *queue[0];
-    memmove(queue, &queue[1], sizeof(queue[0]));
-    buf_count_raw(queue)--;
-    return value;
-}
-
 Token *shunting_yard(Token *tokens)
 {    
     Token *output_queue = NULL;
@@ -83,6 +75,8 @@ Token *shunting_yard(Token *tokens)
         enqueue(&output_queue, buf_pop(operator_stack));
     }
 
+    buf_free(operator_stack);
+    buf_free(tokens);
     return output_queue;
 }
 
