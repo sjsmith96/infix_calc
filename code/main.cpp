@@ -81,7 +81,8 @@ Token *shunting_yard(Token *tokens)
 }
 
 int evaluate(char *string) {
-    
+
+    int result = 0;
     Token *tokens = tokenize_string(string);
     tokens = shunting_yard(tokens);
 
@@ -135,8 +136,12 @@ int evaluate(char *string) {
         
     }
 
+    result = (int) buf_pop(value_stack);
+    
     buf_free(tokens);
-	return (int) buf_pop(value_stack);
+    buf_free(value_stack);
+    
+	return result;
 }
 
 int main(int argc, char **argv) {
